@@ -1,0 +1,41 @@
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # JWasm: ensamblador compatible con MASM que genera el .EXE de DOS sin linker
+      - name: Compilar JWasm
+        run: |
+          git clone --depth 1 --branch v2.20 https://github.com/Baron-von-Riedesel/JWasm.git "$RUNNER_TEMP/jwasm"
+          make -C "$RUNNER_TEMP/jwasm" -f GccUnix.mak
+          echo "JWASM_BIN=$RUNNER_TEMP/jwasm/build/GccUnixR/jwasm" >> "$GITHUB_ENV"
+      - run: web/build.sh
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/publicar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

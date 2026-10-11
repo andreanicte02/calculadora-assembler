@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calculadora en ensamblador</title>
+    <link rel="stylesheet" href="js-dos/js-dos.css">
+    <style>
+        :root {
+            --fondo: #f6f7f9;
+            --panel: #ffffff;
+            --texto: #1f2328;
+            --suave: #59636e;
+            --borde: #d1d9e0;
+            --acento: #0969da;
+            --codigo: #eff1f3;
+            color-scheme: light;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --fondo: #0d1117;
+                --panel: #161b22;
+                --texto: #e6edf3;
+                --suave: #9198a1;
+                --borde: #30363d;
+                --acento: #4493f8;
+                --codigo: #262c36;
+                color-scheme: dark;
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--fondo);
+            color: var(--texto);
+            font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--acento); }
+
+        .pagina { max-width: 1400px; margin: 0 auto; padding: 16px; }
+
+        header h1 { margin: 0 0 4px; font-size: 1.5rem; }
+        header p { margin: 0 0 12px; color: var(--suave); max-width: 900px; }
+
+        .trabajo {
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: 12px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .trabajo { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        #dos {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .guia {
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background: var(--panel);
+            padding: 12px 16px;
+        }
+
+        .guia h2 { font-size: 1rem; margin: 12px 0 4px; }
+        .guia h2:first-child { margin-top: 0; }
+        .guia p, .guia li { font-size: 0.92rem; }
+        .guia ol, .guia ul { padding-left: 20px; margin: 4px 0; }
+        .nota { color: var(--suave); }
+
+        kbd, code {
+            font: 0.85rem ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            background: var(--codigo);
+            border-radius: 4px;
+            padding: 1px 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="pagina">
+    <header>
+        <h1>Calculadora gráfica en ensamblador 8086</h1>
+        <p>
+            Programa para DOS escrito en ensamblador (MASM, ~3,700 líneas): ingresa un polinomio de hasta grado 4,
+            calcula su derivada y su integral, resuelve ecuaciones de primer y segundo grado, grafica en modo de video
+            13h y genera un reporte. Aquí corre en DOSBox dentro del navegador.
+            <a href="https://github.com/andreanicte02/calculadora-assembler" target="_blank" rel="noopener">Código fuente</a>
+        </p>
+    </header>
+
+    <div class="trabajo">
+        <div id="dos"></div>
+
+        <section class="guia">
+            <h2>Cómo usarla</h2>
+            <p class="nota">Haz clic en la pantalla para que reciba el teclado (se necesita teclado físico). Cada opción y cada coeficiente es una sola tecla.</p>
+
+            <h2>Ejemplo: f(x) = x² − 4</h2>
+            <ol>
+                <li><kbd>3</kbd> Ingresar función, y los coeficientes de x⁴ a x⁰: <kbd>0</kbd> <kbd>0</kbd> <kbd>1</kbd> <kbd>0</kbd> <kbd>-</kbd><kbd>4</kbd></li>
+                <li><kbd>4</kbd> Imprimir: muestra la función, su derivada y su integral. Una tecla para volver.</li>
+                <li><kbd>5</kbd> Graficar, <kbd>1</kbd> función en memoria, <kbd>2</kbd> sin rango. Una tecla para volver.</li>
+            </ol>
+
+            <h2>Menú principal</h2>
+            <ul>
+                <li><kbd>1</kbd> Derivar · <kbd>2</kbd> Integrar · <kbd>3</kbd> Ingresar función · <kbd>4</kbd> Imprimir</li>
+                <li><kbd>5</kbd> Graficar (función, derivada o integral, con rango opcional de −99 a 99)</li>
+                <li><kbd>6</kbd> Resolver ecuaciones de primer o segundo grado</li>
+                <li><kbd>7</kbd> Reportes (se escriben en el disco virtual de DOS) · <kbd>8</kbd> Salir</li>
+            </ul>
+            <p class="nota">Los coeficientes negativos se escriben con <kbd>-</kbd> y luego el dígito.</p>
+        </section>
+    </div>
+</div>
+
+<script src="js-dos/js-dos.js"></script>
+<script>
+    Dos(document.getElementById("dos"), {
+        url: "calculadora.jsdos",
+        pathPrefix: "js-dos/emulators/",
+        autoStart: true,
+        noCloud: true,
+        thinSidebar: true,
+        // interfaz del emulador, util para depurar desde la consola (dosCi.simulateKeyPress(...))
+        onEvent: (evento, ci) => {
+            if (evento === "ci-ready") {
+                window.dosCi = ci;
+            }
+        },
+    });
+</script>
+</body>
+</html>
